@@ -11,9 +11,6 @@ Heltec WiFi LoRa 32 **V4** boards — an **R2** (ESP32-S3R2) and an **R8**
 | `R2/` | `R2.ino` | Heltec V4, ESP32-S3R2 | `R2` |
 | `R8/` | `R8.ino` | Heltec V4, ESP32-S3R8 | `R8` |
 
-The receiver/logger (`t3s3_rx_logger`) lives in the original project:
-`C:\Users\dcuyl\Documents\opencode projects\HeltecV4_T3S3_RSSI_SNR_Test\`
-
 ## Software setup
 
 - Arduino IDE with **esp32 core** (tested: 3.3.x)
