@@ -187,8 +187,8 @@ void printSummary() {
 
 void setDistance(const char *s) {
   long m = strtol(s, NULL, 10);
-  if (m < 0 || m > 999) {
-    Serial.println(F("# distance must be 0..999 m"));
+  if (m < 0 || m > 9999) {
+    Serial.println(F("# distance must be 0..9999 m"));
     return;
   }
   snprintf(distStr, sizeof(distStr), "%03ldm", m);

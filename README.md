@@ -15,6 +15,8 @@ the receiver writes one CSV line per packet.
 | [`R2/R2.ino`](R2/R2.ino) | Heltec V4, ESP32-S3R2 | transmitter (`DEVICE_ID "R2"`) |
 | [`R8/R8.ino`](R8/R8.ino) | Heltec V4, ESP32-S3R8 | transmitter (`DEVICE_ID "R8"`) |
 | [`T3S3_RX/T3S3_RX.ino`](T3S3_RX/T3S3_RX.ino) | LilyGO T3-S3 (SX1262) | reference receiver / CSV logger |
+| [`t3s3_logger.py`](t3s3_logger.py) | PC | GUI that captures the receiver's serial stream into per-device CSV files |
+| [`requirements.txt`](requirements.txt) | PC | Python dependencies for the GUI |
 
 ## Requirements
 
@@ -24,6 +26,8 @@ the receiver writes one CSV line per packet.
   - [RadioLib](https://github.com/jgromes/RadioLib) (tested with 7.4.0)
   - [ESP8266 and ESP32 OLED driver for SSD1306 displays](https://github.com/ThingPulse/esp8266-oled-ssd1306) (ThingPulse)
 - Antennas for 915–928 MHz on all three boards
+- For the PC logger: Python 3.8+ with `pip install -r requirements.txt`
+  (only `pyserial`; `tkinter` ships with standard Python)
 
 No Heltec board package is required — the sketches define their own pins.
 
@@ -70,7 +74,7 @@ No Heltec board package is required — the sketches define their own pins.
 
    | Command | Effect |
    |---|---|
-   | `d<number>` | set test distance, e.g. `d10` → field `010m` |
+   | `d<number>` | set test distance, 0–9999 m, e.g. `d10` → field `010m` |
    | `r` | reset statistics (start of a new run) |
    | `s` | print statistics summary |
    | `h` / `?` | help |
@@ -89,6 +93,40 @@ No Heltec board package is required — the sketches define their own pins.
 Device ID, RUNNING/STANDBY/COMPLETE state, packets sent, packet airtime,
 radio config, status line and a progress bar. After packet 100 the radio
 goes to standby and shows `COMPLETE`.
+
+## PC logger (`t3s3_logger.py`)
+
+A small tkinter GUI that listens to the receiver's serial port and writes
+the packets straight into per-device CSV files.
+
+```bash
+pip install -r requirements.txt
+python t3s3_logger.py
+```
+
+1. Select the receiver's **serial port** (Refresh rescans).
+2. Select the **device** — packets are filtered to `R2` or `R8`.
+3. Optionally pick the save location for each CSV with **Browse...**
+   (defaults to `R2.csv` / `R8.csv` next to the script; choose any
+   folder on the PC you are running from).
+4. Select the **test distance** (500, 1000, 1500, 2000, 2500 m).
+5. Press **Start Listening**. The GUI sets the receiver's distance label
+   (`d<distance>`) and resets its statistics (`r`) automatically, then
+   records every matching packet live.
+6. The session **auto-stops at 100 packets** for that distance (Stop works
+   too). The port stays open — pick the next distance and press Start
+   again.
+
+The CSV is *wide*: one row per packet number, one column block per
+distance:
+
+```
+500m_Packet,500m_RSSI,500m_SNR,1000m_Packet,1000m_RSSI,1000m_SNR,...,2500m_SNR
+```
+
+Each session fills only its own distance block; earlier distances keep
+their data. The file is rewritten after every packet, so a run can be
+interrupted without losing anything already recorded.
 
 ## Radio configuration (all three devices)
 
